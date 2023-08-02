@@ -22,18 +22,9 @@ runs:
     - shell: bash
       run: download_parser.sh ${{ inputs.parser_version }}
     - shell: bash
-      run: coverage-notes --jacoco ${{ inputs.jacoco }} | base64 > coverage.base64
+      run: coverage-notes --jacoco ${{ inputs.jacoco }} > coverage.txt
     - name: Create issue using REST API
       shell: bash
-      run: |
-        curl --request PUT \
-        --url https://api.github.com/repos/${{ github.repository }}/contents/${{ github.sha }} \
-        --header 'authorization: Bearer ${{ github.token }}' \
-        --header 'content-type: application/json' \
-        --fail \
-        --data '{
-          "message": "Coverage notes ${{ github.sha }}",
-          "content": "'"$(cat coverage.base64)"'",
-          "committer": {"name": "Coverage Notes", "email": "sukolenvo+cn@gmail.com"},
-          "branch: "refs/${{ inputs.notes_ref }}/commits"
-          }'
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: create_note.sh ${{ inputs.notes_ref }}
