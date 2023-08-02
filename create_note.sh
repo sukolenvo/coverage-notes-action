@@ -1,11 +1,51 @@
-curl --request PUT \
-  --url "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/${GITHUB_SHA}" \
-  --header "authorization: Bearer ${GITHUB_TOKEN}" \
-  --header 'content-type: application/json' \
-  --fail \
-  --data '{
-    "message": "Coverage notes '"${GITHUB_SHA}"'",
-    "content": "'"$(cat coverage.txt | base64)"'",
-    "committer": {"name": "Coverage Notes", "email": "sukolenvo+cn@gmail.com"},
-    "branch: "refs/$1/commits"
-    }'
+set -e;
+
+existingTreeSha=$(curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -s \
+  -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+  "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs/$1/commits" | jq '.object.sha' -r)
+
+if [[ $existingTreeSha == "null" ]]; then
+  treeSha=$(curl -L \
+        -X POST \
+        --fail \
+        -s \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+        "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/trees" \
+        -d '{"tree":[{"mode": "100644", "path": "'"${GITHUB_SHA}"'", "content": "'"$(base64 -w0 coverage.txt)"'"}]}' | jq '.sha' -r)
+  if [[ $treeSha == "null" ]]; then
+    echo "failed to create new content tree"
+    exit 1
+  fi
+  curl -L \
+        -X POST \
+        --fail \
+        -s \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+        "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs" \
+        -d '{"ref":"refs/'"$1"'/commits","sha":"'"123${treeSha}"'"}'
+else
+  treeSha=$(curl -L \
+        -X POST \
+        --fail \
+        -s \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+        "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/trees" \
+        -d '{"tree":[{"mode": "100644", "path": "'"${GITHUB_SHA}"'", "content": "'"$(base64 -w0 coverage.txt)"'"}], "base_tree": "'"$existingTreeSha"'"}' | jq '.sha' -r)
+  if [[ $treeSha == "null" ]]; then
+    echo "failed to create new content tree from $existingTreeSha"
+    exit 1
+  fi
+  curl -L \
+        -X PATCH \
+        --fail \
+        -s \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+        "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs/$1/commits" \
+        -d '{"sha":"'"${treeSha}"'"}'
+fi
