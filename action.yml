@@ -1,0 +1,38 @@
+name: 'Coverage Notes'
+description: 'Code coverage integration using github notes'
+inputs:
+  jacoco:
+    description: 'Path to Jacoco coverage XML'
+    required: true
+    default: build/jacoco/test/jacocoTestReport.xml
+  parser_version:
+    description: 'Parser version'
+    required: true
+    default: '0.1.1'
+  notes_ref:
+    description: 'Notes ref'
+    required: true
+    default: coverage
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+    - shell: bash
+      run: download_parser.sh ${{ inputs.parser_version }}
+    - shell: bash
+      run: coverage-notes --jacoco ${{ inputs.jacoco }} | base64 > coverage.base64
+    - name: Create issue using REST API
+      run: |
+        curl --request PUT \
+        --url https://api.github.com/repos/${{ github.repository }}/contents/${{ github.sha }} \
+        --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+        --header 'content-type: application/json' \
+        --fail \
+        --data '{
+          "message": "Coverage notes ${{ github.sha }}",
+          "content": "'"$(cat coverage.base64)"'",
+          "committer": {"name": "Coverage Notes", "email": "sukolenvo+cn@gmail.com"},
+          "branch: "refs/${{ inputs.notes_ref }}/commits"
+          }'
