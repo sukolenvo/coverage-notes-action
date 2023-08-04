@@ -2,13 +2,13 @@ set -e;
 
 ref="refs/$1/commits"
 
-existingTreeSha=$(curl -L \
+commitSha=$(curl -L \
   -H "Accept: application/vnd.github+json" \
   -s \
   -H "Authorization: Bearer ${GITHUB_TOKEN}" \
   "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/$ref" | jq '.object.sha' -r)
 
-if [[ $existingTreeSha == "null" ]]; then
+if [[ commitSha == "null" ]]; then
   echo "Ref $ref doesn't exist"
   treeSha=$(curl -L \
         -X POST \
@@ -23,6 +23,14 @@ if [[ $existingTreeSha == "null" ]]; then
     exit 1
   fi
   echo "Created new content tree $treeSha"
+  newCommitSha=$(curl -L \
+        -X POST \
+        --fail \
+        -s \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+        "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/commits" \
+        -d '{"message": "save coverage details", "author": {"name": "Coverage notes bot", "sukolenvo+cn@gmail.com"}, "tree":"'"$treeSha"'"}'| jq '.sha' -r)
   curl -L \
         -X POST \
         --fail \
@@ -30,10 +38,17 @@ if [[ $existingTreeSha == "null" ]]; then
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer ${GITHUB_TOKEN}" \
         "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs" \
-        -d '{"ref":"'"$ref"'","sha":"'"${treeSha}"'"}'
+        -d '{"ref":"'"$ref"'","sha":"'"${newCommitSha}"'"}'
   echo "Updated ref $ref to the new content tree"
 else
-  echo "Found existing ref $ref. Tree sha: $existingTreeSha"
+  echo "Found existing ref $ref. Commit sha: $commitSha"
+  existingTreeSha=$(curl -L \
+        --fail \
+        -s \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+        "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/commits/$commitSha" | jq '.tree .sha' -r)
+  echo "Tree sha $existingTreeSha"
   treeSha=$(curl -L \
         -X POST \
         --fail \
@@ -47,6 +62,14 @@ else
     exit 1
   fi
   echo "Created new content tree $treeSha"
+  newCommitSha=$(curl -L \
+        -X POST \
+        --fail \
+        -s \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+        "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/commits" \
+        -d '{"message": "save coverage details", "author": {"name": "Coverage notes bot", "sukolenvo+cn@gmail.com"}, "tree":"'"$treeSha"'"}'| jq '.sha' -r)
   curl -L \
         -X PATCH \
         --fail \
@@ -54,6 +77,6 @@ else
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer ${GITHUB_TOKEN}" \
         "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/$ref" \
-        -d '{"sha":"'"${treeSha}"'"}' > /dev/null
-  echo "Updated ref $ref to the new content tree"
+        -d '{"sha":"'"${newCommitSha}"'"}' > /dev/null
+  echo "Updated ref $ref to the new commit $newCommitSha"
 fi
