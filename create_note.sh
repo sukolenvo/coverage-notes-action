@@ -8,7 +8,7 @@ commitSha=$(curl -L \
   -H "Authorization: Bearer ${GITHUB_TOKEN}" \
   "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/$ref" | jq '.object.sha' -r)
 
-if [[ commitSha == "null" ]]; then
+if [[ "$commitSha" == "null" ]]; then
   echo "Ref $ref doesn't exist"
   treeSha=$(curl -L \
         -X POST \
