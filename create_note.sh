@@ -30,7 +30,7 @@ if [[ "$commitSha" == "null" ]]; then
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer ${GITHUB_TOKEN}" \
         "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/commits" \
-        -d '{"message": "save coverage details", "author": {"name": "Coverage notes bot", "sukolenvo+cn@gmail.com"}, "tree":"'"$treeSha"'"}'| jq '.sha' -r)
+        -d '{"message": "save coverage details", "author": {"name": "Coverage notes bot", "email": "sukolenvo+cn@gmail.com"}, "tree":"'"$treeSha"'"}'| jq '.sha' -r)
   curl -L \
         -X POST \
         --fail \
@@ -69,7 +69,7 @@ else
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer ${GITHUB_TOKEN}" \
         "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/commits" \
-        -d '{"message": "save coverage details", "author": {"name": "Coverage notes bot", "sukolenvo+cn@gmail.com"}, "tree":"'"$treeSha"'"}'| jq '.sha' -r)
+        -d '{"message": "save coverage details", "author": {"name": "Coverage notes bot", "email": "sukolenvo+cn@gmail.com"}, "tree":"'"$treeSha"'"}'| jq '.sha' -r)
   curl -L \
         -X PATCH \
         --fail \
