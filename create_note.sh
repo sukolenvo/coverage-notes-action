@@ -17,8 +17,8 @@ if [[ "$commitSha" == "null" ]]; then
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer ${GITHUB_TOKEN}" \
         "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/trees" \
-        -d '{"tree":[{"mode": "100644", "path": "'"${GITHUB_SHA}"'", "content": "'"$(cat coverage.txt)"'"}]}' | jq '.sha' -r)
-  if [[ $treeSha == "null" ]]; then
+        -d '{"tree":[{"mode": "100644", "path": "'"${GITHUB_SHA}"'", "content": "'"$(awk '{printf "%s\\n", $0}' coverage.txt)"'"}]}' | jq '.sha' -r)
+  if [[ "$treeSha" == "null" ]]; then
     echo "failed to create new content tree"
     exit 1
   fi
@@ -56,8 +56,8 @@ else
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer ${GITHUB_TOKEN}" \
         "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/trees" \
-        -d '{"tree":[{"mode": "100644", "path": "'"${GITHUB_SHA}"'", "content": "'"$(cat coverage.txt)"'"}], "base_tree": "'"$existingTreeSha"'"}' | jq '.sha' -r)
-  if [[ $treeSha == "null" ]]; then
+        -d '{"tree":[{"mode": "100644", "path": "'"${GITHUB_SHA}"'", "content": "'"$(awk '{printf "%s\\n", $0}' coverage.txt)"'"}], "base_tree": "'"$existingTreeSha"'"}' | jq '.sha' -r)
+  if [[ "$treeSha" == "null" ]]; then
     echo "failed to create new content tree from $existingTreeSha"
     exit 1
   fi
