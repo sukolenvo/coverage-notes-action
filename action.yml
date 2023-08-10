@@ -22,14 +22,9 @@ runs:
     - shell: bash
       run: download_parser.sh ${{ inputs.parser_version }}
     - name: PR opened
-      if: github.event.commit
+      if: ${{ github.event_name == 'push' }}
       shell: bash
       run: coverage-notes --notes-ref ${{ inputs.notes_ref }} -jacoco ${{ inputs.jacoco }} create-commit
-    - name: Create issue using REST API
-      shell: bash
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      run: create_note.sh ${{ inputs.notes_ref }}
     - name: PR opened
       if: github.event.pull_request
       shell: bash
