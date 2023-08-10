@@ -24,7 +24,7 @@ runs:
     - name: PR opened
       if: ${{ github.event_name == 'push' }}
       shell: bash
-      run: coverage-notes --notes-ref ${{ inputs.notes_ref }} --jacoco ${{ inputs.jacoco }} create-commit
+      run: coverage-notes --notes_ref ${{ inputs.notes_ref }} --jacoco ${{ inputs.jacoco }} create-commit
     - name: PR opened
       if: github.event.pull_request
       shell: bash
