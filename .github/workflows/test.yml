@@ -17,4 +17,4 @@ jobs:
         with:
           jacoco: sample-jacoco.xml
           notes_ref: ${{ matrix.os }}
-          repo_toke: ${{ secrets.GITHUB_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
