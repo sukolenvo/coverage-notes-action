@@ -8,7 +8,7 @@ inputs:
   parser_version:
     description: 'Parser version'
     required: true
-    default: '0.1.1'
+    default: '0.2'
   notes_ref:
     description: 'Notes ref'
     required: true
@@ -21,8 +21,10 @@ runs:
       run: echo "${{ github.action_path }}" >> $GITHUB_PATH
     - shell: bash
       run: download_parser.sh ${{ inputs.parser_version }}
-    - shell: bash
-      run: coverage-notes --jacoco ${{ inputs.jacoco }} > coverage.txt
+    - name: PR opened
+      if: github.event.commit
+      shell: bash
+      run: coverage-notes --notes-ref ${{ inputs.notes_ref }} -jacoco ${{ inputs.jacoco }} create-commit
     - name: Create issue using REST API
       shell: bash
       env:
@@ -31,4 +33,4 @@ runs:
     - name: PR opened
       if: github.event.pull_request
       shell: bash
-      run: process_pr.sh ${{ github.event.number }} ${{ inputs.notes_ref }}
+      run: coverage-notes --notes-ref ${{ inputs.notes_ref }} create-pr --pr_number ${{ github.event.number }}
