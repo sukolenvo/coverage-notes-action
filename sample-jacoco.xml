@@ -3,7 +3,7 @@
   <sessioninfo id="object-21061aa9" start="1683895529957" dump="1683895566710"/>
   <counter type="INSTRUCTION" missed="6500" covered="37859"/>
   <counter type="BRANCH" missed="668" covered="1351"/>
-  <counter type="LINE" missed="1522" covered="9237"/>
+  <counter type="LINE" missed="152" covered="9237"/>
   <counter type="COMPLEXITY" missed="884" covered="2043"/>
   <counter type="METHOD" missed="291" covered="1568"/>
   <counter type="CLASS" missed="14" covered="228"/>
