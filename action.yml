@@ -12,7 +12,7 @@ inputs:
   notes_ref:
     description: 'Notes ref'
     required: true
-    default: coverage
+    default: notes/coverage
   repo_token:
     description: 'Github token with permission to push and comment on PR'
     required: true
