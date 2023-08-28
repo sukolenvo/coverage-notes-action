@@ -1,0 +1,6 @@
+instruction: 0.85
+line: 0.98
+class: 0.94
+branch: 0.67
+method: 0.84
+complexity: 0.70

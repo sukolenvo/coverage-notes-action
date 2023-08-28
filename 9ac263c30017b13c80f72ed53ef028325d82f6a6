@@ -1,0 +1,8 @@
+[2023-08-12 01:29:46.660] [info] Parsed coverage: 
+instruction: 0.85
+line: 0.86
+class: 0.94
+branch: 0.67
+method: 0.84
+complexity: 0.70
+
