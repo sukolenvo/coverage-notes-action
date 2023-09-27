@@ -2,13 +2,15 @@ name: 'Coverage Notes'
 description: 'Code coverage integration using github notes'
 inputs:
   jacoco:
-    description: 'Path to Jacoco coverage XML'
-    required: true
-    default: build/jacoco/test/jacocoTestReport.xml
+    description: 'Path to Jacoco coverage XML. One of jacoco or cobertura params is required.'
+    required: false
+  cobertura:
+    description: 'Path to Cobertura coverage XML. One of jacoco or cobertura params is required.'
+    required: false
   parser_version:
     description: 'Parser version'
     required: true
-    default: '0.3.1'
+    default: '0.4'
   notes_ref:
     description: 'Notes ref'
     required: true
@@ -27,7 +29,10 @@ runs:
     - name: PR opened
       if: ${{ github.event_name == 'push' }}
       shell: bash
-      run: ./coverage-notes --notes_ref ${{ inputs.notes_ref }} --jacoco ${{ inputs.jacoco }} --github_token ${{ inputs.repo_token }} create-commit
+      run: >
+        ./coverage-notes --notes_ref ${{ inputs.notes_ref }}
+        ${{ inputs.jacoco && format('--jacoco {0}', inputs.jacoco) || (inputs.cobertura && format('--cobertura {0}', inputs.cobertura)) }}
+        --github_token ${{ inputs.repo_token }} create-commit
     - name: PR opened
       if: github.event.pull_request
       shell: bash
