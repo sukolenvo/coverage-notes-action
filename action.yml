@@ -31,7 +31,7 @@ runs:
       shell: bash
       run: >
         ./coverage-notes --notes_ref ${{ inputs.notes_ref }}
-        ${{ inputs.jacoco.length > 0 ? '--jacoco ' + inputs.jacoco : (inputs.cobertura.length > 0 ? '--cobertura ' + inputs.cobertura : '') }}
+        ${{ inputs.jacoco && ('--jacoco ' + inputs.jacoco) || (inputs.cobertura && ('--cobertura ' + inputs.cobertura) || '') }}
         --github_token ${{ inputs.repo_token }} create-commit
     - name: PR opened
       if: github.event.pull_request
