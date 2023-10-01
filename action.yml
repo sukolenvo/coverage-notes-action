@@ -10,7 +10,7 @@ inputs:
   parser_version:
     description: 'Parser version'
     required: true
-    default: '0.4'
+    default: '0.4.1'
   notes_ref:
     description: 'Notes ref'
     required: true
