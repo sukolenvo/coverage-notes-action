@@ -1,7 +1,7 @@
 ### Code Coverage Notes
 
 * store repo code coverage in [git-notes](https://git-scm.com/docs/git-notes).
-* update PRs with coverage diff, eg:
+* add coverage diff to PRs ([example](https://github.com/sukolenvo/coverage-notes-action/pull/1)):
     ```diff
     @@ Coverage info. Don't edit past this section @@
     + instruction: 60% (+1)
