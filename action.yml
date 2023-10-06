@@ -1,5 +1,8 @@
 name: 'Coverage Notes'
-description: 'Code coverage integration using github notes'
+description: 'Code coverage integration using git-notes'
+branding:
+  icon: info
+  color: purple
 inputs:
   jacoco:
     description: 'Path to Jacoco coverage XML. One of jacoco or cobertura params is required.'
